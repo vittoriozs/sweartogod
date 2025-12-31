@@ -3,7 +3,7 @@ import Container from "./Container";
 import Logo from "./Logo";
 import SocialMedia from "./SocialMedia";
 import { SubTitle } from "./ui/text";
-import { catagoriesData, quickLinksData } from "@/constants/data";
+import { categoriesData, quickLinksData } from "@/constants/data";
 import Link from "next/link";
 import { MapPin } from "lucide-react";
 import FooterTop from "./FooterTop";
@@ -11,7 +11,7 @@ import FooterTop from "./FooterTop";
 const Footer = () => {
   return (
     <footer>
-      <Container>
+      <Container className="mt-10">
         <FooterTop />
         <div className="py-12 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
           <div className="space-y-4">
@@ -42,7 +42,7 @@ const Footer = () => {
             <div>
               <SubTitle>Categories</SubTitle>
               <ul className="space-y-2 mt-4">
-                {catagoriesData?.map((item) => (
+                {categoriesData?.map((item) => (
                   <li key={item?.title}>
                     <Link
                       href={`/categories/${item?.href}`}
@@ -66,7 +66,7 @@ const Footer = () => {
         <div className="py-6 border-t text-center text-sm text-gray-600">
           <div>
             © {new Date().getFullYear()}
-            {""} <Logo className="text-sm" />. All rights reserved.
+            {""} <Logo className="text-lg" />. All rights reserved.
           </div>
         </div>
       </Container>

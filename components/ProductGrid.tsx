@@ -15,11 +15,11 @@ const ProductGrid = () => {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(false);
 
-  const query = `*[_type == "product" && status == "hot"] 
-    | order(name asc)[0...4]{
-      ...,
-      "categories": categories[]->title
-    }`;
+  const query = `*[_type == "product" && isFeatured == true]
+  | order(name asc)[0...8]{
+    ...,
+    "categories": categories[]->title
+  }`;
 
   useEffect(() => {
     const fetchData = async () => {
@@ -42,10 +42,10 @@ const ProductGrid = () => {
         <Title>Featured Products</Title>
 
         <Link
-          href={"/deals"}
+          href={"/product"}
           className="text-sm border border-dark-grey px-4 py-1 rounded-full hover:text-white hover:bg-dark-grey hover:border-dark-grey hoverEffect"
         >
-          See all
+          See All Products
         </Link>
       </div>
 
@@ -72,7 +72,7 @@ const ProductGrid = () => {
           ))}
         </div>
       ) : (
-        <NoProductAvailable selectedTab="deals" />
+        <NoProductAvailable selectedTab="featured" />
       )}
     </Container>
   );

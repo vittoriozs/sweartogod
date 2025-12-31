@@ -1,7 +1,19 @@
-import React from "react";
+import CategoryProducts from "@/components/CategoryProducts";
+import Container from "@/components/Container";
+import Title from "@/components/Title";
 
-const CategorySlugPage = () => {
-  return <div>CategorySlugPage</div>;
-};
+const mainCategories = ["featured", "mens", "womens", "kids"];
 
-export default CategorySlugPage;
+export default async function CategoryPage({ params }: any) {
+  const { slug } = await params;
+
+  return (
+    <div className="py-3">
+      <Container>
+        <Title className="uppercase tracking-wide mb-5">{slug}</Title>
+
+        <CategoryProducts slug={slug} />
+      </Container>
+    </div>
+  );
+}

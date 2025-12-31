@@ -1,7 +1,7 @@
 import React, { FC } from "react";
 import Logo from "./Logo";
 import { X } from "lucide-react";
-import { headerData } from "@/constants/data";
+import { categoryNav } from "@/constants/data";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import SocialMedia from "./SocialMedia";
@@ -22,10 +22,12 @@ const SideMenu: FC<SidebarProps> = ({ isOpen, onClose }) => {
     >
       <div
         ref={sidebarRef}
-        className="min-w-72 max-w-96 bg-black h-screen p-10 flex flex-col gap-6"
+        className="min-w-72 max-w-96 bg-white text-black/80 h-screen p-10 flex flex-col gap-6"
       >
         <div className="flex items-center justify-between gap-5">
-          <Logo className="text-white" />
+          <div onClick={onClose} className="cursor-pointer">
+            <Logo className="text-black" />
+          </div>
           <button
             onClick={onClose}
             className="hover:text-dark-grey hoverEffect"
@@ -35,19 +37,23 @@ const SideMenu: FC<SidebarProps> = ({ isOpen, onClose }) => {
         </div>
 
         <div className="flex flex-col space-y-3.5 font-semibold tracking-wide">
-          {headerData?.map((item) => (
+          {categoryNav?.map((item) => (
             <Link
               href={item.href}
               key={item?.title}
               className={`hover:text-dark-grey hoverEffect ${
-                pathname === item?.href && "text-white"
+                pathname === item?.href && "text-black font-extrabold"
               }`}
             >
               {item.title}
             </Link>
           ))}
         </div>
-        <SocialMedia />
+        <SocialMedia
+          className="text-black/60"
+          iconClassName="border-black/60 hover:border-dark-grey hover:text-dark-grey"
+          tooltipClassName="bg-black text-white"
+        />
       </div>
     </div>
   );

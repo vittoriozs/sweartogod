@@ -7,7 +7,7 @@ const Logo = ({ className }: { className?: string }) => {
     <Link href="/" className="inline-flex">
       <h2
         className={cn(
-          "text-xl text-black font-black tracking-wider uppercase",
+          "text-3xl text-black font-bebas tracking-wider uppercase",
           className
         )}
       >

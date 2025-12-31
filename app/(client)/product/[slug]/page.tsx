@@ -20,25 +20,25 @@ const SingleProductPage = async ({
     return notFound();
   }
   return (
-    <Container className="flex flex-col md:flex-row gap-10 py-10">
+    <Container className="flex flex-col md:flex-row gap-10 py-10 mb-10">
       {product?.images && (
         <ImageView images={product?.images} isStock={product?.stock} />
       )}
       <div className="w-full md:w-1/2 flex flex-col gap-5">
         <div className="space-y-1">
           <h2 className="text-2xl font-bold">{product?.name}</h2>
-          <p className="text-sm text-gray-600 tracking-wide">
+          <p className="text-sm text-gray-600 tracking-wide mt-4">
             {product?.description}
           </p>
         </div>
-        <div className="space-y-2 border-t border-b border-gray-200 py-5">
+        <div className="grid grid-cols-2 space-y-2 border-t border-b border-gray-200 py-5">
           <PriceView
             price={product?.price}
             discount={product?.discount}
             className="text-lg font-bold"
           />
           <p
-            className={`px-4 py-1.5 text-sm text-center inline-block font-semibold rounded-lg ${product?.stock === 0 ? "bg-red-100 text-red-600" : "text-green-600 bg-green-100"}`}
+            className={`px-4 py-1.5 text-sm text-center inline-block font-medium rounded-md w-fit justify-self-end ${product?.stock === 0 ? "bg-red-100 text-red-600" : "text-green-600 bg-green-100"}`}
           >
             {(product?.stock as number) > 0 ? "In Stock" : "Out of Stock"}
           </p>
@@ -47,7 +47,25 @@ const SingleProductPage = async ({
           <AddToCartButton product={product} />
           <FavoriteButton showProduct={true} product={product} />
         </div>
-        <ProductCharacteristics product={product} />
+        <div className="space-y-2">
+          <h2 className="font-bold">Characteristics</h2>
+          <p className="flex items-center justify-between">
+            Collection:{" "}
+            <span className="font-semibold tracking-wide">2025</span>
+          </p>
+          <p className="flex items-center justify-between">
+            Type:{" "}
+            <span className="font-semibold tracking-wide capitalize">
+              {product?.variant}
+            </span>
+          </p>
+          <p className="flex items-center justify-between">
+            Stock:{" "}
+            <span className="font-semibold tracking-wide">
+              {product?.stock ? "Available" : "Out of Stock"}
+            </span>
+          </p>
+        </div>
       </div>
     </Container>
   );

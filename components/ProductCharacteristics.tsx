@@ -15,8 +15,8 @@ const ProductCharacteristics = async ({
   return (
     <Accordion type="single" collapsible>
       <AccordionItem value="item-1">
-        <AccordionTrigger className="hover:text-dark-grey hoverEffect">
-          {product?.name}: Characteristics:
+        <AccordionTrigger className="hover:text-dark-grey font-semibold hoverEffect">
+          {product?.name}: Characteristics
         </AccordionTrigger>
         <AccordionContent>
           <p className="flex items-center justify-between">
@@ -25,7 +25,7 @@ const ProductCharacteristics = async ({
           </p>
           <p className="flex items-center justify-between">
             Type:{" "}
-            <span className="font-semibold tracking-wide">
+            <span className="font-semibold tracking-wide capitalize">
               {product?.variant}
             </span>
           </p>

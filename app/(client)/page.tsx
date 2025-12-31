@@ -6,11 +6,13 @@ import React from "react";
 
 const Home = () => {
   return (
-    <Container>
+    <>
       <Hero />
-      <ProductGrid />
-      <LatestBlog />
-    </Container>
+      <Container>
+        <ProductGrid />
+        <LatestBlog />
+      </Container>
+    </>
   );
 };
 

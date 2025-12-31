@@ -21,7 +21,7 @@ const Header = async () => {
   }
 
   return (
-    <header className="bg-white/70 py-5 sticky top-0 z-50 backdrop-blur-md">
+    <header className="bg-white py-5 sticky top-0 z-50">
       <Container className="flex items-center justify-between">
         <div className="w-auto md:w-1/3 flex items-center gap-2.5 justify-start md:gap-0">
           <MobileMenu />

@@ -70,7 +70,7 @@ const SuccessPageContent = () => {
           </Link>
 
           <Link
-            href="/"
+            href="/product"
             className="flex items-center justify-center px-4 py-3 font-semibold bg-black text-white rounded-lg hover:bg-gray-800 transition-all duration-300 shadow-md"
           >
             <ShoppingBag className="w-5 h-5 mr-2" />

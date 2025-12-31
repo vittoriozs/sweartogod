@@ -1,7 +1,7 @@
 import { sanityFetch } from "../lib/live";
 import {
+  ALL_PRODUCTS,
   BLOG_CATEGORIES,
-  DEAL_PRODUCTS,
   GET_ALL_BLOG,
   LATEST_BLOG_QUERY,
   MY_ORDERS_QUERY,
@@ -20,12 +20,12 @@ const getLatestBlogs = async () => {
   }
 };
 
-const getDealProducts = async () => {
+const getAllProducts = async () => {
   try {
-    const { data } = await sanityFetch({ query: DEAL_PRODUCTS });
+    const { data } = await sanityFetch({ query: ALL_PRODUCTS });
     return data ?? [];
   } catch (error) {
-    console.log("Error fetching deal products:", error);
+    console.log("Error fetching all products:", error);
     return [];
   }
 };
@@ -107,7 +107,7 @@ const getMyOrders = async (userId: string) => {
 
 export {
   getLatestBlogs,
-  getDealProducts,
+  getAllProducts,
   getProductBySlug,
   getAllBlogs,
   getSingleBlog,

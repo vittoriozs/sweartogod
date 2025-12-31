@@ -69,6 +69,20 @@ export const productType = defineType({
         ],
       },
     }),
+
+    defineField({
+      name: "gender",
+      title: "Gender",
+      type: "string",
+      options: {
+        list: [
+          { title: "Mens", value: "mens" },
+          { title: "Womens", value: "womens" },
+          { title: "Kids", value: "kids" },
+        ],
+      },
+    }),
+
     defineField({
       name: "variant",
       title: "Product Type",

@@ -23,7 +23,7 @@ const OrdersPage = async () => {
 
   return (
     <div>
-      <Container className="py-10">
+      <Container className="py-10 mb-10">
         {orders?.length ? (
           <Card className="w-full">
             <CardHeader>

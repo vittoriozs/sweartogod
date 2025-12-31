@@ -10,8 +10,17 @@ import dayjs from "dayjs";
 const LatestBlog = async () => {
   const blogs = await getLatestBlogs();
   return (
-    <div className="my-7.5 lg:my-15">
-      <Title>Latest Blog</Title>
+    <div className="my-7.5 lg:my-15 px-4 md:px-4 lg:px-0">
+      <div className="flex justify-between items-center mt-2">
+        <Title>Latest Blog</Title>
+
+        <Link
+          href={"/blog"}
+          className="text-sm border border-dark-grey px-4 py-1 rounded-full hover:text-white hover:bg-dark-grey hover:border-dark-grey hoverEffect"
+        >
+          See All Blogs
+        </Link>
+      </div>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5 mt-7.5">
         {blogs?.map((blog: any) => (
           <div

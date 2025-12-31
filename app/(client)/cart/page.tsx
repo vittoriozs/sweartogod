@@ -30,6 +30,15 @@ import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Checkbox } from "@/components/ui/checkbox";
 
 type PickupLocation = {
   _id: string;
@@ -61,20 +70,39 @@ const CartPage = () => {
     null
   );
 
+  const [openAddressModal, setOpenAddressModal] = useState(false);
+
+  const [newAddress, setNewAddress] = useState({
+    name: "",
+    address: "",
+    kelurahan: "",
+    kecamatan: "",
+    city: "",
+    province: "",
+    postalCode: "",
+    default: false,
+  });
+
   const fetchAddresses = async () => {
+    if (!user?.emailAddresses?.[0]?.emailAddress) return;
+
     setLoading(true);
     try {
-      const query = `*[_type=="address"] | order(publishedAt desc)`;
-      const data = await client.fetch(query);
+      const email = user.emailAddresses[0].emailAddress;
+
+      const query = `
+      *[_type=="address" && email==$email]
+      | order(default desc, createdAt desc)
+    `;
+
+      const data: Address[] = await client.fetch(query, { email });
+
       setAddresses(data);
-      const defaultAddress = data.find((addr: Address) => addr.default);
-      if (defaultAddress) {
-        setSelectedAddress(defaultAddress);
-      } else if (data.length > 0) {
-        setSelectedAddress(data[0]);
-      }
+
+      const defaultAddress = data.find((addr) => addr.default);
+      setSelectedAddress(defaultAddress ?? data[0] ?? null);
     } catch (error) {
-      console.log("Addresses fetching error:", error);
+      console.error("Addresses fetching error:", error);
     } finally {
       setLoading(false);
     }
@@ -84,19 +112,37 @@ const CartPage = () => {
     if (deliveryMethod !== "pickup") return;
 
     const fetchPickupLocations = async () => {
-      const data = await client.fetch(
-        `*[_type=="pickupLocation" && active==true] | order(name asc)`
+      const data: PickupLocation[] = await client.fetch(
+        `*[_type=="pickupLocation" && active==true]`
       );
-      setPickupLocations(data);
-      setSelectedPickup(data?.[0] ?? null);
+
+      // Custom order array
+      const customOrder = [
+        "Vanna Lévourla Maison",
+        "Vanna Lévourla Atelier",
+        "Vanna Lévourla Boutique",
+      ];
+
+      // Urutkan sesuai customOrder, yang tidak ada di array tetap di belakang
+      const sortedData = data.sort((a, b) => {
+        const indexA = customOrder.indexOf(a.name);
+        const indexB = customOrder.indexOf(b.name);
+        if (indexA === -1 && indexB === -1) return 0;
+        if (indexA === -1) return 1;
+        if (indexB === -1) return -1;
+        return indexA - indexB;
+      });
+
+      setPickupLocations(sortedData);
+      setSelectedPickup(sortedData?.[0] ?? null);
     };
 
     fetchPickupLocations();
   }, [deliveryMethod]);
 
   useEffect(() => {
-    fetchAddresses();
-  }, []);
+    if (user) fetchAddresses();
+  }, [user]);
   const handleResetCart = () => {
     const confirmed = window.confirm(
       "Are you sure you want to reset your cart?"
@@ -104,6 +150,48 @@ const CartPage = () => {
     if (confirmed) {
       resetCart();
       toast.success("Cart reset successfully!");
+    }
+  };
+
+  const handleAddAddress = async () => {
+    if (!user?.emailAddresses?.[0]?.emailAddress) {
+      toast.error("User email not found");
+      return;
+    }
+
+    try {
+      setLoading(true);
+
+      const res = await fetch("/api/address", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          ...newAddress,
+          email: user.emailAddresses[0].emailAddress,
+        }),
+      });
+
+      if (!res.ok) throw new Error();
+
+      toast.success("Address added successfully");
+
+      setOpenAddressModal(false);
+      setNewAddress({
+        name: "",
+        address: "",
+        kelurahan: "",
+        kecamatan: "",
+        city: "",
+        province: "",
+        postalCode: "",
+        default: false,
+      });
+
+      fetchAddresses();
+    } catch {
+      toast.error("Failed to add address");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -242,18 +330,6 @@ const CartPage = () => {
                                 <h2 className="text-base font-semibold line-clamp-1">
                                   {product?.name}
                                 </h2>
-                                <p className="text-sm capitalize">
-                                  Variant:{" "}
-                                  <span className="font-semibold">
-                                    {product?.variant}
-                                  </span>
-                                </p>
-                                <p className="text-sm capitalize">
-                                  Status:{" "}
-                                  <span className="font-semibold">
-                                    {product?.status}
-                                  </span>
-                                </p>
                               </div>
                               <div className="flex items-center gap-2">
                                 <TooltipProvider>
@@ -363,7 +439,7 @@ const CartPage = () => {
                           </div>
                           <div className="flex items-center space-x-2">
                             <RadioGroupItem value="pickup" />
-                            <Label>Pick Up In Store</Label>
+                            <Label>Pick Up in Store</Label>
                           </div>
                         </RadioGroup>
                       </CardContent>
@@ -420,9 +496,13 @@ const CartPage = () => {
                         </CardHeader>
                         <CardContent>
                           <RadioGroup
-                            defaultValue={addresses
-                              ?.find((addr) => addr.default)
-                              ?._id.toString()}
+                            value={selectedAddress?._id}
+                            onValueChange={(id) =>
+                              setSelectedAddress(
+                                addresses.find((addr) => addr._id === id) ??
+                                  null
+                              )
+                            }
                           >
                             {addresses?.map((address) => (
                               <div
@@ -430,9 +510,7 @@ const CartPage = () => {
                                 onClick={() => setSelectedAddress(address)}
                                 className={`flex items-center space-x-2 mb-4 cursor-pointer ${selectedAddress?._id === address?._id && "text-shop_dark_green"}`}
                               >
-                                <RadioGroupItem
-                                  value={address?._id.toString()}
-                                />
+                                <RadioGroupItem value={address?._id} />
                                 <Label
                                   htmlFor={`address-${address?._id}`}
                                   className="grid gap-1.5 flex-1"
@@ -442,13 +520,17 @@ const CartPage = () => {
                                   </span>
                                   <span className="text-sm text-black/60">
                                     {address.address}, {address.city},{" "}
-                                    {address.state} {address.zip}
+                                    {address.province} {address.postalCode}
                                   </span>
                                 </Label>
                               </div>
                             ))}
                           </RadioGroup>
-                          <Button variant="outline" className="w-full mt-4">
+                          <Button
+                            variant="outline"
+                            className="w-full mt-4"
+                            onClick={() => setOpenAddressModal(true)}
+                          >
                             Add New Address
                           </Button>
                         </CardContent>
@@ -500,6 +582,94 @@ const CartPage = () => {
       ) : (
         <NoAccess />
       )}
+      <Dialog open={openAddressModal} onOpenChange={setOpenAddressModal}>
+        <DialogContent className="max-w-lg">
+          <DialogHeader>
+            <DialogTitle>Add New Address</DialogTitle>
+          </DialogHeader>
+
+          <div className="grid gap-3">
+            <Input
+              placeholder="Address Name (Home, Office)"
+              value={newAddress.name}
+              onChange={(e) =>
+                setNewAddress({ ...newAddress, name: e.target.value })
+              }
+            />
+
+            <Input
+              placeholder="Full Address"
+              value={newAddress.address}
+              onChange={(e) =>
+                setNewAddress({ ...newAddress, address: e.target.value })
+              }
+            />
+
+            <div className="grid grid-cols-2 gap-3">
+              <Input
+                placeholder="Kelurahan"
+                value={newAddress.kelurahan}
+                onChange={(e) =>
+                  setNewAddress({ ...newAddress, kelurahan: e.target.value })
+                }
+              />
+              <Input
+                placeholder="Kecamatan"
+                value={newAddress.kecamatan}
+                onChange={(e) =>
+                  setNewAddress({ ...newAddress, kecamatan: e.target.value })
+                }
+              />
+            </div>
+
+            <Input
+              placeholder="City / Regency"
+              value={newAddress.city}
+              onChange={(e) =>
+                setNewAddress({ ...newAddress, city: e.target.value })
+              }
+            />
+
+            <Input
+              placeholder="Province"
+              value={newAddress.province}
+              onChange={(e) =>
+                setNewAddress({ ...newAddress, province: e.target.value })
+              }
+            />
+
+            <Input
+              placeholder="Postal Code"
+              value={newAddress.postalCode}
+              onChange={(e) =>
+                setNewAddress({ ...newAddress, postalCode: e.target.value })
+              }
+            />
+
+            <div className="flex items-center gap-2">
+              <Checkbox
+                checked={newAddress.default}
+                onCheckedChange={(v) =>
+                  setNewAddress({ ...newAddress, default: Boolean(v) })
+                }
+              />
+              <Label>Set as default address</Label>
+            </div>
+          </div>
+
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setOpenAddressModal(false)}
+            >
+              Cancel
+            </Button>
+            <Button onClick={handleAddAddress} disabled={loading}>
+              {loading ? "Saving..." : "Save Address"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
